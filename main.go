@@ -7,10 +7,12 @@ import (
 	"strings"
 )
 
+// Creating an interface for an action
 type Action interface {
 	execute(env string) error
 }
 
+// dockerEnvironment holds properties for a given environment
 type DockerEnvironment struct {
 	Environment            string
 	StoppedContainers      int
@@ -21,10 +23,12 @@ type DockerEnvironment struct {
 	ImagesInfo             []ImageInfo
 }
 
+// DockerMonitor acts as a factory
 type DockerMonitor struct {
 	DockerEnvironments []DockerEnvironment
 }
 
+// containerInfo holds container data
 type ContainerInfo struct {
 	Command      string `json:"command"`
 	CreatedAt    string `json:"createdAt"`
@@ -42,6 +46,7 @@ type ContainerInfo struct {
 	Status       string `json:"status"`
 }
 
+// containerInfo holds image data
 type ImageInfo struct {
 	Containers   string `json:"containers"`
 	CreatedAt    string `json:"createdAt"`
@@ -56,6 +61,7 @@ type ImageInfo struct {
 	VirtualSize  string `json:"virtualSize"`
 }
 
+// function to create an instance of DockerMonitor
 func NewDockerMonitor(envs []string) *DockerMonitor {
 	const InitialContainers = 0
 	const InitialLocalImages = 0
@@ -83,7 +89,12 @@ type CheckDockerVersion struct {
 
 func (c CheckDockerVersion) execute(env string) error {
 
+	// We can used exec package to execute commands to a remote host as well
+	// Here, the env parameter can be used to pass in hostname for the remote host.
 	// cmd := exec.Command("ssh", "remote-machine", "bash-command")
+
+	// WARNING:: please be careful of what commands you run. Running arbitrary commands can cause unexpected
+	// impact to you machine. Make sure you know the commands you are running.
 	cmd := exec.Command("docker", "--version")
 	out, err := cmd.Output()
 	if err != nil {
@@ -114,6 +125,8 @@ func TrimSuffix(s, suffix string) string {
 
 func (c CheckContainersStatus) execute(env string) error {
 
+	// WARNING:: please be careful of what commands you run. Running arbitrary commands can cause unexpected
+	// impact to you machine. Make sure you know the commands you are running.
 	cmd := exec.Command("docker", "container", "ls", "-a", "--format", "\"{{json .}}\"")
 	out, err := cmd.CombinedOutput() //Output()
 	if err != nil {
@@ -163,6 +176,8 @@ type CheckLocalImages struct {
 
 func (c CheckLocalImages) execute(env string) error {
 
+	// WARNING:: please be careful of what commands you run. Running arbitrary commands can cause unexpected
+	// impact to you machine. Make sure you know the commands you are running.
 	cmd := exec.Command("docker", "images", "--format", "\"{{json .}}\"")
 	out, err := cmd.CombinedOutput()
 	if err != nil {

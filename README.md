@@ -1,13 +1,18 @@
 
-# Workflow Pattern in Go (Golang)
+# Practical Guide to Command Pattern in Go (Golang)
 
-After a few months of learning and working with Go, I've come to understand one pattern that is very useful in many cases when developing Golang applications - Workflow Pattern. 
+After a few months of learning and working with Go, I've come to understand one pattern that is very useful in many cases when developing Golang applications - Command Pattern. 
 
-This article will go over the workflow pattern, how it can be implemented, and when to use it in Go.
+This article will go over the command pattern, how it can be implemented, and when to use it in Go.
 
 Consider a workflow with many actions. Each action in a workflow can be executed with its own set of contexts. However, the execution step should be identical across all workflow actions.
 
-I will demonstrate this pattern with a simple use case that monitors docker containers. Below is what we will build. 
+I will demonstrate this pattern with a simple use case that monitors Docker installed on a host. Below is what we will build. 
+
+![DockerMonitor - diagram](images/DockerMonitor-diagram.png) 
+
+> :warning: **Make sure you know the commands you are running**: lease be careful of commands you run. Running arbitrary commands can cause an unexpected impact on your machine!
+
 
 ## Let's get coding. 
 
@@ -18,7 +23,7 @@ type Action interface {
 }
 ```
 
-Next, let's implement the Actions we will use for our docker monitoring: 
+Next, let's implement the Actions we will use for our docker monitoring. We first define structs that will hold required data for our monitoring application. Then we implement a constructor for our DockerMonitor instance.
 
 ```go
 type DockerEnvironment struct {
@@ -93,7 +98,11 @@ type CheckDockerVersion struct {
 
 func (c CheckDockerVersion) execute(env string) error {
 
+	// We can used exec package to execute commands to a remote host as well
+	// Here, the env parameter can be used to pass in hostname for the remote host.
 	// cmd := exec.Command("ssh", "remote-machine", "bash-command")
+
+	// WARNING:: Make sure you know the commands you are running.
 	cmd := exec.Command("docker", "--version")
 	out, err := cmd.Output()
 	if err != nil {
